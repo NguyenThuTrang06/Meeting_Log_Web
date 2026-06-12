@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMeetingById } from '../services/meetingService';
+import { getMeetingById, updateMeeting } from '../services/meetingService';
 
 const MeetingDetail = () => {
   const { id } = useParams();

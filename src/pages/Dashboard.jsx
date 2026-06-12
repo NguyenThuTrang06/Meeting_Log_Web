@@ -15,8 +15,9 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await getMeetings();
-      // Laravel pagination returns data in response.data
-      setMeetings(response.data || []);
+      // Laravel pagination returns data in response.data (axios payload) -> .data (Laravel paginator array)
+      const dataArray = response.data.data ? response.data.data : response.data;
+      setMeetings(dataArray || []);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -78,15 +79,15 @@ const Dashboard = () => {
                       {meeting.duration_minutes || 0} phút
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                    {meeting.name}
+                  <td className="px-6 py-4 text-sm font-semibold text-slate-900 max-w-sm">
+                    <div className="whitespace-normal line-clamp-2">{meeting.name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    <div>{meeting.team || '-'}</div>
-                    <div className="text-xs text-slate-400">{meeting.leader || '-'}</div>
+                    <div className="font-medium text-slate-900">{meeting.team || '-'}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{meeting.leader || '-'}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">
-                    {meeting.short_summary}
+                  <td className="px-6 py-4 text-sm text-slate-600 max-w-md">
+                    <div className="whitespace-normal line-clamp-3">{meeting.short_summary}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link to={`/meetings/${meeting.id}`} className="text-blue-600 hover:text-blue-900 font-semibold bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
