@@ -4,6 +4,8 @@ import { getMeetingById, updateMeeting } from '../services/meetingService';
 
 const MeetingDetail = () => {
   const { id } = useParams();
+  const [meeting, setMeeting] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
 
