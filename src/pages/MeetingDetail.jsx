@@ -1,210 +1,145 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMeetingById, updateMeeting } from '../services/meetingService';
+import api from '../services/api';
 
 const MeetingDetail = () => {
   const { id } = useParams();
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    const fetchMeeting = async () => {
-      try {
-        setLoading(true);
-        const data = await getMeetingById(id);
-        setMeeting(data);
-        setFormData({
-          team: data.team || '',
-          leader: data.leader || '',
-          customer_id: data.customer_id || '',
-          project_id: data.project_id || '',
-          meeting_date: data.meeting_date || '',
-          duration_minutes: data.duration_minutes || ''
-        });
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
-      }
-    };
-    fetchMeeting();
+    fetchMeetingDetail();
   }, [id]);
 
-  const handleSave = async () => {
+  const fetchMeetingDetail = async () => {
     try {
-      setLoading(true);
-      const updated = await updateMeeting(id, formData);
-      setMeeting(updated);
-      setIsEditing(false);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
+      const response = await api.get(`/meetings/${id}`);
+      setMeeting(response.data);
+    } catch (error) {
+      console.error('Error fetching meeting detail:', error);
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading && !meeting) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8C0000]"></div>
       </div>
     );
   }
 
-  if (!meeting) return <div>Không tìm thấy cuộc họp</div>;
+  if (!meeting) {
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-lg font-medium text-slate-900">Không tìm thấy cuộc họp</h3>
+        <Link to="/" className="text-[#8C0000] hover:underline mt-2 inline-block">Quay lại danh sách</Link>
+      </div>
+    );
+  }
+
+  // Format date correctly if possible
+  const datePart = meeting.meeting_date ? meeting.meeting_date.split(' ')[0] : '—';
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="text-slate-500 hover:text-slate-900 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          </Link>
-          <h1 className="text-2xl font-bold text-slate-900">{meeting.name}</h1>
-        </div>
-        <div>
-          {isEditing ? (
-            <div className="flex gap-2">
-              <button onClick={() => setIsEditing(false)} className="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50">Hủy</button>
-              <button onClick={handleSave} className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">Lưu</button>
-            </div>
-          ) : (
-            <button onClick={() => setIsEditing(true)} className="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-              Chỉnh sửa thông tin
-            </button>
-          )}
-        </div>
+    <div className="max-w-4xl mx-auto">
+      <Link to="/" className="inline-flex items-center text-sm font-medium text-[#8C0000] hover:text-red-900 mb-6 transition-colors">
+        <span className="mr-1">&larr;</span> Quay lại danh sách
+      </Link>
+
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-[#8C0000] flex items-center gap-2">
+          <svg className="w-6 h-6 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
+          Chi tiết cuộc họp
+        </h1>
+        {meeting.week && (
+          <span className="bg-red-50 text-red-800 border border-red-100 px-4 py-1.5 rounded-full text-sm font-semibold">
+            {meeting.week}
+          </span>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left Column: Metadata */}
-        <div className="col-span-1 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <div className="space-y-6">
+        {/* Thông tin chung Box */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-lg font-bold text-[#8C0000] mb-6 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
               Thông tin chung
             </h2>
-            <div className="space-y-4">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 mb-8">
               <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Thời gian</span>
-                {isEditing ? (
-                  <div className="mt-1 flex gap-2">
-                    <input type="text" value={formData.meeting_date} onChange={(e) => setFormData({...formData, meeting_date: e.target.value})} className="block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="YYYY-MM-DD HH:mm" />
-                  </div>
-                ) : (
-                  <span className="block text-sm text-slate-900 font-medium">{meeting.meeting_date} ({meeting.duration_minutes} phút)</span>
-                )}
+                <span className="block text-xs font-semibold text-slate-500 mb-1">NGÀY HỌP</span>
+                <span className="block text-sm text-slate-900 font-medium">{datePart}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-slate-500 mb-1">THỜI LƯỢNG</span>
+                <span className="inline-block bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded text-sm font-semibold">
+                  {meeting.duration_minutes || 0} phút
+                </span>
               </div>
               
               <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Thời lượng (phút)</span>
-                {isEditing ? (
-                  <input type="number" value={formData.duration_minutes} onChange={(e) => setFormData({...formData, duration_minutes: e.target.value})} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" />
-                ) : null}
+                <span className="block text-xs font-semibold text-slate-500 mb-1">TEAM</span>
+                <span className="block text-sm text-slate-900 font-medium">{meeting.team || '—'}</span>
               </div>
+              <div>
+                <span className="block text-xs font-semibold text-slate-500 mb-1">LEADER THAM GIA</span>
+                <span className="block text-sm text-slate-900 font-medium">{meeting.leader || '—'}</span>
+              </div>
+              
+              <div>
+                <span className="block text-xs font-semibold text-slate-500 mb-1">CUSTOMER ID</span>
+                <span className="block text-sm text-slate-900 font-medium">{meeting.customer_id || '—'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-slate-500 mb-1">PROJECT ID</span>
+                <span className="block text-sm text-slate-900 font-medium">{meeting.project_id || '—'}</span>
+              </div>
+            </div>
 
-              <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Tuần</span>
-                <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{meeting.week}</span>
-              </div>
-              
-              <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Team</span>
-                {isEditing ? (
-                  <input type="text" value={formData.team} onChange={(e) => setFormData({...formData, team: e.target.value})} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="VD: Marketing" />
-                ) : (
-                  <span className="block text-sm text-slate-900 font-medium">{meeting.team || 'Chưa cập nhật'}</span>
-                )}
-              </div>
-              
-              <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Leader tham gia</span>
-                {isEditing ? (
-                  <input type="text" value={formData.leader} onChange={(e) => setFormData({...formData, leader: e.target.value})} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="Tên Leader" />
-                ) : (
-                  <span className="block text-sm text-slate-900 font-medium">{meeting.leader || 'Chưa cập nhật'}</span>
-                )}
-              </div>
-              
-              <div>
-                <span className="block text-xs font-medium text-slate-500 uppercase">Dự án / Khách hàng</span>
-                {isEditing ? (
-                  <div className="mt-1 space-y-2">
-                    <input type="text" value={formData.project_id} onChange={(e) => setFormData({...formData, project_id: e.target.value})} className="block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="Project ID" />
-                    <input type="text" value={formData.customer_id} onChange={(e) => setFormData({...formData, customer_id: e.target.value})} className="block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="Customer ID" />
-                  </div>
-                ) : (
-                  <span className="block text-sm text-slate-900 font-medium">{meeting.project_id || '-'} / {meeting.customer_id || '-'}</span>
-                )}
-              </div>
-              <div>
-                <a href={meeting.video_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium mt-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  Xem Video Recording
-                </a>
-              </div>
+            <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+              <a href={meeting.video_link || '#'} target="_blank" rel="noopener noreferrer" className="bg-[#8C0000] hover:bg-red-900 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" /></svg>
+                Xem video họp
+              </a>
+              <a href={meeting.sheet_link || '#'} target="_blank" rel="noopener noreferrer" className="bg-[#188038] hover:bg-green-800 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
+                Xem summary gốc (Google Sheet)
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Content */}
-        <div className="col-span-1 md:col-span-2 space-y-6">
-          
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <span className="text-xl">📋</span> Tổng quan
+        {/* Tóm tắt nội dung Box */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-lg font-bold text-[#8C0000] mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+              Tóm tắt nội dung cuộc họp
             </h2>
-            <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
-              {meeting.overview}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <span className="text-xl">✅</span> Action Items
-            </h2>
-            {meeting.action_items ? (
-              <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {meeting.action_items}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500 italic">Không có action items cụ thể.</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-t-4 border-t-green-500">
-              <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <span className="text-xl">📌</span> Quyết định
-              </h2>
-              <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {meeting.decisions || 'Không có'}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-t-4 border-t-amber-500">
-              <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <span className="text-xl">⚠️</span> Vấn đề & Rủi ro
-              </h2>
-              <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {meeting.issues || 'Không có'}
-              </div>
+            <div className="bg-red-50/50 border-l-4 border-[#8C0000] p-4 rounded-r-lg">
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                {meeting.short_summary || meeting.overview || 'Không có tóm tắt.'}
+              </p>
             </div>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-t-4 border-t-blue-500">
-            <h2 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <span className="text-xl">📅</span> Bước tiếp theo
+        </div>
+        
+        {meeting.action_items && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-[#8C0000] mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+              Action Items
             </h2>
             <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-              {meeting.next_steps || 'Không có'}
+              {meeting.action_items}
             </div>
           </div>
+        )}
 
-        </div>
       </div>
     </div>
   );
