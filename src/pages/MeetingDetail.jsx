@@ -223,9 +223,8 @@ const MeetingDetail = () => {
           </div>
         )}
 
+        </div>
       )}
-
-      </div>
     </div>
   );
 };
