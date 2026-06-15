@@ -23,9 +23,13 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await getMeetings();
-      // If backend is paginated, it might be in response.data.data
-      const dataArray = response.data.data ? response.data.data : response.data;
-      setMeetings(dataArray || []);
+      let dataArray = [];
+      if (Array.isArray(response)) {
+        dataArray = response;
+      } else if (response && response.data) {
+        dataArray = response.data;
+      }
+      setMeetings(dataArray);
       setLoading(false);
     } catch (err) {
       console.error(err);
