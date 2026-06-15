@@ -48,8 +48,11 @@ const MeetingDetail = () => {
     }
   };
 
-  // Get unique teams from members list
-  const availableTeams = [...new Set(membersList.map(m => m.team).filter(Boolean))].sort();
+  // Get unique teams from members list and predefined teams
+  const availableTeams = [...new Set([
+    'MKT', 'TECH', 'Cả team',
+    ...membersList.map(m => m.team).filter(Boolean)
+  ])].sort();
 
   if (loading) {
     return (
