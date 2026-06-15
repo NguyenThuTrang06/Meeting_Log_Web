@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../services/api';
 
 const Members = () => {
@@ -9,6 +9,10 @@ const Members = () => {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editTeam, setEditTeam] = useState('');
+
+  // Filter states
+  const [searchName, setSearchName] = useState('');
+  const [searchTeam, setSearchTeam] = useState('');
 
   useEffect(() => {
     fetchMembers();
@@ -71,6 +75,20 @@ const Members = () => {
     }
   };
 
+  // Filter logic
+  const filteredMembers = useMemo(() => {
+    return members.filter(member => {
+      const matchName = searchName ? member.name?.toLowerCase().includes(searchName.toLowerCase()) : true;
+      const matchTeam = searchTeam ? member.team?.toLowerCase().includes(searchTeam.toLowerCase()) : true;
+      return matchName && matchTeam;
+    });
+  }, [members, searchName, searchTeam]);
+
+  const handleClearFilters = () => {
+    setSearchName('');
+    setSearchTeam('');
+  };
+
   if (loading) {
     return <div className="text-center py-10">Đang tải dữ liệu...</div>;
   }
@@ -82,10 +100,34 @@ const Members = () => {
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>
           Quản lý thành viên
         </h1>
-        <span className="text-slate-500">{members.length} thành viên</span>
+        <span className="text-slate-500">{filteredMembers.length} thành viên</span>
       </div>
 
-      <div className="p-6 border-b border-slate-200">
+      <div className="p-4 border-b border-slate-200 bg-white flex gap-4">
+        <div className="flex-1 max-w-xs relative">
+          <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input 
+            type="text" 
+            placeholder="Tìm theo tên..." 
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+          />
+        </div>
+        <div className="flex-1 max-w-xs relative">
+          <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input 
+            type="text" 
+            placeholder="Tìm theo team..." 
+            value={searchTeam}
+            onChange={(e) => setSearchTeam(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+          />
+        </div>
+        <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
+      </div>
+
+      <div className="p-6 border-b border-slate-200 bg-slate-50/50">
         <h2 className="text-sm font-bold text-[#8C0000] mb-3 flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
           Thêm thành viên mới
@@ -111,7 +153,7 @@ const Members = () => {
             />
           </div>
           <button type="submit" className="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-            Thêm
+            Thêm mới
           </button>
         </form>
       </div>
@@ -127,7 +169,7 @@ const Members = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {members.map((member, index) => (
+            {filteredMembers.map((member, index) => (
               <tr key={member.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 text-slate-500">{index + 1}</td>
                 <td className="px-6 py-4 font-medium text-slate-900">

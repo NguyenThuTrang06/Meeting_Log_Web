@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getMeetings } from '../services/meetingService';
 
@@ -6,6 +6,14 @@ const Dashboard = () => {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Filter states
+  const [searchWeek, setSearchWeek] = useState('');
+  const [searchTeam, setSearchTeam] = useState('');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchMeetings();
@@ -15,7 +23,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await getMeetings();
-      // Laravel pagination returns data in response.data (axios payload) -> .data (Laravel paginator array)
+      // If backend is paginated, it might be in response.data.data
       const dataArray = response.data.data ? response.data.data : response.data;
       setMeetings(dataArray || []);
       setLoading(false);
@@ -24,6 +32,28 @@ const Dashboard = () => {
       setError('Không thể tải danh sách cuộc họp.');
       setLoading(false);
     }
+  };
+
+  // Filter logic
+  const filteredMeetings = useMemo(() => {
+    return meetings.filter(meeting => {
+      const matchWeek = searchWeek ? meeting.week?.toLowerCase().includes(searchWeek.toLowerCase()) : true;
+      const matchTeam = searchTeam ? meeting.team?.toLowerCase().includes(searchTeam.toLowerCase()) : true;
+      return matchWeek && matchTeam;
+    });
+  }, [meetings, searchWeek, searchTeam]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredMeetings.length / itemsPerPage);
+  const paginatedMeetings = filteredMeetings.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleClearFilters = () => {
+    setSearchWeek('');
+    setSearchTeam('');
+    setCurrentPage(1);
   };
 
   if (loading) {
@@ -49,20 +79,32 @@ const Dashboard = () => {
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
           Danh sách cuộc họp
         </h1>
-        <span className="text-slate-500">{meetings.length} cuộc họp</span>
+        <span className="text-slate-500">{filteredMeetings.length} cuộc họp</span>
       </div>
 
       <div className="p-4 border-b border-slate-200 bg-white flex gap-4">
         <div className="flex-1 max-w-xs relative">
           <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input type="text" placeholder="Lọc theo tuần (VD: Tuần 24)" className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" />
+          <input 
+            type="text" 
+            placeholder="Lọc theo tuần (VD: Tuần 24)" 
+            value={searchWeek}
+            onChange={(e) => { setSearchWeek(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+          />
         </div>
         <div className="flex-1 max-w-xs relative">
           <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input type="text" placeholder="Lọc theo team" className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" />
+          <input 
+            type="text" 
+            placeholder="Lọc theo team" 
+            value={searchTeam}
+            onChange={(e) => { setSearchTeam(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+          />
         </div>
-        <button className="bg-[#8C0000] hover:bg-red-900 text-white px-6 py-2 rounded-lg font-medium transition-colors">Tìm kiếm</button>
-        <button className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
+        <button onClick={() => setCurrentPage(1)} className="bg-[#8C0000] hover:bg-red-900 text-white px-6 py-2 rounded-lg font-medium transition-colors">Tìm kiếm</button>
+        <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
       <div className="overflow-x-auto p-6">
@@ -80,13 +122,13 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {meetings.map((meeting, index) => {
+            {paginatedMeetings.map((meeting, index) => {
               // Extract date part correctly if it has time
               const datePart = meeting.meeting_date ? meeting.meeting_date.split(' ')[0] : '—';
               
               return (
                 <tr key={meeting.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-4 text-center text-slate-500">{index + 1}</td>
+                  <td className="px-4 py-4 text-center text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td className="px-4 py-4 font-medium text-red-800">{meeting.week || '—'}</td>
                   <td className="px-4 py-4 text-slate-600">{datePart}</td>
                   <td className="px-4 py-4 text-slate-800">
@@ -116,24 +158,44 @@ const Dashboard = () => {
                 </tr>
               );
             })}
-            {meetings.length === 0 && (
+            {paginatedMeetings.length === 0 && (
               <tr>
                 <td colSpan="8" className="px-6 py-12 text-center text-slate-500 bg-slate-50 rounded-b-xl">
-                  Chưa có dữ liệu cuộc họp nào.
+                  Không tìm thấy cuộc họp nào.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
         
-        {/* Pagination placeholder */}
-        {meetings.length > 0 && (
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
           <div className="mt-6 flex justify-center items-center gap-2">
-            <button className="px-3 py-1 bg-slate-200 text-slate-600 rounded text-sm font-medium hover:bg-slate-300 transition-colors">&larr; Trước</button>
-            <button className="px-3 py-1 bg-[#8C0000] text-white rounded text-sm font-medium">1</button>
-            <button className="px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded text-sm font-medium transition-colors">2</button>
-            <button className="px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded text-sm font-medium transition-colors">3</button>
-            <button className="px-3 py-1 bg-slate-200 text-slate-600 rounded text-sm font-medium hover:bg-slate-300 transition-colors">Sau &rarr;</button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
+            >
+              &larr; Trước
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === page ? 'bg-[#8C0000] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === totalPages ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
+            >
+              Sau &rarr;
+            </button>
           </div>
         )}
       </div>
