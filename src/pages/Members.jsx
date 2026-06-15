@@ -18,8 +18,8 @@ const Members = () => {
   const availableTeams = useMemo(() => {
     const teams = members.map(m => m.team).filter(Boolean);
     const uniqueTeams = [...new Set(teams)];
-    // Thêm một số team mặc định nếu chưa có
-    const defaultTeams = ['Backend', 'Frontend', 'Design', 'QA', 'Marketing', 'Sale', 'HR', 'BOD'];
+    // Thêm các team chuẩn của công ty sếp
+    const defaultTeams = ['MKT', 'TECH', 'Cả team'];
     defaultTeams.forEach(t => {
       if (!uniqueTeams.includes(t)) uniqueTeams.push(t);
     });
