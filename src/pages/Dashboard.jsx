@@ -43,8 +43,6 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
-      <div className="mb-8 flex justify-between items-end">
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
         <h1 className="text-2xl font-bold text-[#8C0000] flex items-center gap-2">
