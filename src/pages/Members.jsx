@@ -14,6 +14,18 @@ const Members = () => {
   const [searchName, setSearchName] = useState('');
   const [searchTeam, setSearchTeam] = useState('');
 
+  // Lấy danh sách các team độc nhất từ dữ liệu
+  const availableTeams = useMemo(() => {
+    const teams = members.map(m => m.team).filter(Boolean);
+    const uniqueTeams = [...new Set(teams)];
+    // Thêm một số team mặc định nếu chưa có
+    const defaultTeams = ['Backend', 'Frontend', 'Design', 'QA', 'Marketing', 'Sale', 'HR', 'BOD'];
+    defaultTeams.forEach(t => {
+      if (!uniqueTeams.includes(t)) uniqueTeams.push(t);
+    });
+    return uniqueTeams.sort();
+  }, [members]);
+
   useEffect(() => {
     fetchMembers();
   }, []);
@@ -115,14 +127,17 @@ const Members = () => {
           />
         </div>
         <div className="flex-1 max-w-xs relative">
-          <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input 
-            type="text" 
-            placeholder="Tìm theo team..." 
+          <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          <select 
             value={searchTeam}
             onChange={(e) => setSearchTeam(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
-          />
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none appearance-none" 
+          >
+            <option value="">Tất cả các Team</option>
+            {availableTeams.map(team => (
+              <option key={team} value={team}>{team}</option>
+            ))}
+          </select>
         </div>
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
@@ -144,13 +159,17 @@ const Members = () => {
             />
           </div>
           <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Team (tuỳ chọn)"
+            <select
               value={newTeam}
               onChange={(e) => setNewTeam(e.target.value)}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none"
-            />
+              required
+            >
+              <option value="" disabled>-- Chọn Team --</option>
+              {availableTeams.map(team => (
+                <option key={team} value={team}>{team}</option>
+              ))}
+            </select>
           </div>
           <button type="submit" className="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-lg font-medium transition-colors">
             Thêm mới
@@ -186,12 +205,16 @@ const Members = () => {
                 </td>
                 <td className="px-6 py-4 text-slate-600">
                   {editingId === member.id ? (
-                    <input
-                      type="text"
+                    <select
                       value={editTeam}
                       onChange={(e) => setEditTeam(e.target.value)}
                       className="w-full px-3 py-1 border border-slate-300 rounded outline-none focus:border-[#8C0000]"
-                    />
+                    >
+                      <option value="" disabled>-- Chọn --</option>
+                      {availableTeams.map(team => (
+                        <option key={team} value={team}>{team}</option>
+                      ))}
+                    </select>
                   ) : (
                     member.team || <span className="text-slate-400">—</span>
                   )}

@@ -6,21 +6,50 @@ const MeetingDetail = () => {
   const { id } = useParams();
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [membersList, setMembersList] = useState([]);
+  const [editData, setEditData] = useState({});
 
   useEffect(() => {
     fetchMeetingDetail();
+    fetchMembers();
   }, [id]);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await api.get('/members');
+      setMembersList(response.data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    }
+  };
 
   const fetchMeetingDetail = async () => {
     try {
       const response = await api.get(`/meetings/${id}`);
       setMeeting(response.data);
+      setEditData(response.data);
     } catch (error) {
       console.error('Error fetching meeting detail:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleUpdateMeeting = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.put(`/meetings/${id}`, editData);
+      setMeeting(response.data);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating meeting:', error);
+      alert('Có lỗi xảy ra khi cập nhật!');
+    }
+  };
+
+  // Get unique teams from members list
+  const availableTeams = [...new Set(membersList.map(m => m.team).filter(Boolean))].sort();
 
   if (loading) {
     return (
@@ -53,14 +82,68 @@ const MeetingDetail = () => {
           <svg className="w-6 h-6 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
           Chi tiết cuộc họp
         </h1>
-        {meeting.week && (
-          <span className="bg-red-50 text-red-800 border border-red-100 px-4 py-1.5 rounded-full text-sm font-semibold">
-            {meeting.week}
-          </span>
-        )}
+        <div className="flex gap-3 items-center">
+          {meeting.week && (
+            <span className="bg-red-50 text-red-800 border border-red-100 px-4 py-1.5 rounded-full text-sm font-semibold">
+              {meeting.week}
+            </span>
+          )}
+          {!isEditing && (
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              Sửa
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-6">
+      {isEditing ? (
+        <form onSubmit={handleUpdateMeeting} className="bg-white rounded-xl shadow-sm border border-orange-200 p-6 mb-6">
+          <h2 className="text-lg font-bold text-orange-600 mb-4 flex items-center gap-2">Chỉnh sửa thông tin</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">TÊN CUỘC HỌP / NỘI DUNG</label>
+              <input type="text" value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" required />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">NGÀY HỌP</label>
+              <input type="text" value={editData.meeting_date || ''} onChange={e => setEditData({...editData, meeting_date: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">TEAM</label>
+              <select value={editData.team || ''} onChange={e => setEditData({...editData, team: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
+                <option value="">-- Chọn Team --</option>
+                {availableTeams.map(t => <option key={t} value={t}>{t}</option>)}
+                {!availableTeams.includes(editData.team) && editData.team && <option value={editData.team}>{editData.team}</option>}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">LEADER THAM GIA</label>
+              <select value={editData.leader || ''} onChange={e => setEditData({...editData, leader: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
+                <option value="">-- Chọn Leader --</option>
+                {membersList.map(m => <option key={m.id} value={m.name}>{m.name} {m.team ? `(${m.team})` : ''}</option>)}
+                {!membersList.find(m => m.name === editData.leader) && editData.leader && <option value={editData.leader}>{editData.leader}</option>}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">TUẦN</label>
+              <input type="text" value={editData.week || ''} onChange={e => setEditData({...editData, week: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">THỜI LƯỢNG (PHÚT)</label>
+              <input type="number" value={editData.duration_minutes || ''} onChange={e => setEditData({...editData, duration_minutes: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" />
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end mt-6">
+            <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded font-medium transition-colors">Hủy</button>
+            <button type="submit" className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded font-medium transition-colors">Lưu thay đổi</button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-6">
         {/* Thông tin chung Box */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6">
@@ -139,6 +222,8 @@ const MeetingDetail = () => {
             </div>
           </div>
         )}
+
+      )}
 
       </div>
     </div>
