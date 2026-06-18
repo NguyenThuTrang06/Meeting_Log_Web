@@ -63,7 +63,7 @@ const Dashboard = () => {
   };
 
   const availableTeams = [...new Set([
-    'MKT', 'TECH', 'Cả team',
+    'MKT', 'TECH', 'TECH & MKT',
     ...membersList.map(m => m.team).filter(Boolean)
   ])].sort();
 
