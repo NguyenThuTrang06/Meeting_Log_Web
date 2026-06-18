@@ -139,97 +139,110 @@ const Dashboard = () => {
       </div>
 
       <div className="overflow-x-auto p-6">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-[#8C0000] text-white">
+        <table className="w-full text-left text-sm border-collapse">
+          <thead className="text-xs">
             <tr>
-              <th className="px-2 py-3 font-semibold rounded-tl-lg w-10 text-center">#</th>
-              <th className="px-2 py-3 font-semibold w-24">Tuần</th>
-              <th className="px-2 py-3 font-semibold w-24">Ngày họp</th>
-              <th className="px-2 py-3 font-semibold min-w-[160px]">Nội dung tóm tắt</th>
-              <th className="px-2 py-3 font-semibold w-24">Cust. ID</th>
-              <th className="px-2 py-3 font-semibold w-24">Proj. ID</th>
-              <th className="px-2 py-3 font-semibold w-28">Team</th>
-              <th className="px-2 py-3 font-semibold w-28">Leader</th>
-              <th className="px-2 py-3 font-semibold w-28">Member</th>
-              <th className="px-2 py-3 font-semibold w-16 text-center">Phút</th>
-              <th className="px-2 py-3 font-semibold rounded-tr-lg w-16 text-center"></th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-20">Tuần</th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-24">Thời gian</th>
+              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32">
+                <div className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                  Customer ID
+                </div>
+              </th>
+              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32">Project ID</th>
+              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-24">Team</th>
+              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-40">
+                <div className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                  Leader tham gia họp
+                </div>
+              </th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-20 text-center">Thời lượng</th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-32">Link video</th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 min-w-[200px]">Summary</th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-32">Link summary</th>
+              <th className="px-2 py-3 font-semibold bg-[#1e5631] text-white border border-slate-300 w-16 text-center">Chi tiết</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="bg-white">
             {paginatedMeetings.map((meeting, index) => {
               // Extract date part correctly if it has time
               const datePart = meeting.meeting_date ? meeting.meeting_date.split(' ')[0] : '—';
               
               return (
                 <tr key={meeting.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-2 py-3 text-center text-slate-500 text-sm">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td className="px-2 py-3">
-                    <input type="text" value={meeting.week || ''} 
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    <textarea rows="2" value={meeting.week || ''} 
                       onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, week: e.target.value } : m))}
                       onBlur={e => handleUpdateField(meeting.id, 'week', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none text-red-800 font-medium placeholder-slate-300" placeholder="Trống" />
+                      className="w-full h-full text-sm border-none bg-transparent outline-none resize-none" placeholder="Tuần 22" />
                   </td>
-                  <td className="px-2 py-3 text-slate-600 text-sm whitespace-nowrap">{datePart}</td>
-                  <td className="px-2 py-3 text-slate-800 text-sm">
-                    <div className="whitespace-normal line-clamp-2" title={meeting.name}>{meeting.name || meeting.short_summary || '—'}</div>
-                  </td>
-                  <td className="px-2 py-3">
-                    <input type="text" value={meeting.customer_id || ''} 
+                  <td className="px-2 py-2 border border-slate-300 align-top text-slate-700 text-sm">{datePart}</td>
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    <textarea rows="3" value={meeting.customer_id || ''} 
                       onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, customer_id: e.target.value } : m))}
                       onBlur={e => handleUpdateField(meeting.id, 'customer_id', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none placeholder-slate-300" placeholder="ID KH" />
+                      className="w-full h-full text-sm border-none bg-transparent outline-none resize-none bg-slate-100 rounded p-1" placeholder="59.0..." />
                   </td>
-                  <td className="px-2 py-3">
-                    <input type="text" value={meeting.project_id || ''} 
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    <textarea rows="3" value={meeting.project_id || ''} 
                       onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, project_id: e.target.value } : m))}
                       onBlur={e => handleUpdateField(meeting.id, 'project_id', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none placeholder-slate-300" placeholder="ID Dự án" />
+                      className="w-full h-full text-sm border-none bg-transparent outline-none resize-none" placeholder="[2026]..." />
                   </td>
-                  <td className="px-2 py-3">
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top">
                     <select value={meeting.team || ''} 
                       onChange={e => {
                         const val = e.target.value;
                         setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, team: val } : m));
                         handleUpdateField(meeting.id, 'team', val);
                       }}
-                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
+                      className="w-full text-sm border border-slate-200 rounded p-1 bg-slate-100 outline-none cursor-pointer">
                       <option value="">--</option>
                       {availableTeams.map(t => <option key={t} value={t}>{t}</option>)}
                       {!availableTeams.includes(meeting.team) && meeting.team && <option value={meeting.team}>{meeting.team}</option>}
                     </select>
                   </td>
-                  <td className="px-2 py-3">
-                    <select value={meeting.leader || ''} 
-                      onChange={e => {
-                        const val = e.target.value;
-                        setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, leader: val } : m));
-                        handleUpdateField(meeting.id, 'leader', val);
-                      }}
-                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
-                      <option value="">--</option>
-                      {membersList.map(m => <option key={`l-${m.id}`} value={m.name}>{m.name}</option>)}
-                      {!membersList.find(m => m.name === meeting.leader) && meeting.leader && <option value={meeting.leader}>{meeting.leader}</option>}
-                    </select>
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    <textarea rows="3" value={meeting.leader || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, leader: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'leader', e.target.value)}
+                      className="w-full h-full text-sm border-none bg-transparent outline-none resize-none leading-tight" placeholder="Văn Thương&#10;Dương Quang Vũ..." />
                   </td>
-                  <td className="px-2 py-3">
-                    <select value={meeting.members || ''} 
-                      onChange={e => {
-                        const val = e.target.value;
-                        setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, members: val } : m));
-                        handleUpdateField(meeting.id, 'members', val);
-                      }}
-                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
-                      <option value="">--</option>
-                      {membersList.map(m => <option key={`m-${m.id}`} value={m.name}>{m.name}</option>)}
-                      {!membersList.find(m => m.name === meeting.members) && meeting.members && <option value={meeting.members}>{meeting.members}</option>}
-                    </select>
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top text-center text-sm text-slate-700">
+                    {meeting.duration_minutes ? `${meeting.duration_minutes} phút` : ''}
                   </td>
-                  <td className="px-2 py-3 text-center">
-                    <span className="font-semibold text-blue-600 text-sm">{meeting.duration_minutes || 0}</span>
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    {meeting.video_link && (
+                      <a href={meeting.video_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs break-all line-clamp-3">
+                        {meeting.video_link}
+                      </a>
+                    )}
                   </td>
-                  <td className="px-2 py-3 text-center">
-                    <Link to={`/meetings/${meeting.id}`} className="inline-block text-[#8C0000] hover:text-red-900 font-medium px-2 py-1 rounded transition-colors text-xs underline">
-                      Xem
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    <div className="text-xs text-slate-800 whitespace-pre-wrap leading-relaxed line-clamp-4">
+                      {meeting.short_summary || meeting.overview || meeting.name || ''}
+                    </div>
+                  </td>
+
+                  <td className="px-2 py-2 border border-slate-300 align-top">
+                    {meeting.sheet_link && (
+                      <a href={meeting.sheet_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs break-all line-clamp-3">
+                        {meeting.sheet_link}
+                      </a>
+                    )}
+                  </td>
+                  
+                  <td className="px-2 py-2 border border-slate-300 align-middle text-center">
+                    <Link to={`/meetings/${meeting.id}`} className="inline-block text-[#1e5631] hover:text-green-900 font-medium px-2 py-1 transition-colors text-xs underline">
+                      Chi tiết
                     </Link>
                   </td>
                 </tr>
