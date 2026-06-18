@@ -43,21 +43,50 @@ const Dashboard = () => {
   // Refs for syncing top scrollbar with table
   const tableContainerRef = useRef(null);
   const topScrollRef = useRef(null);
-  const tableRef = useRef(null);
+  const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
+  const tableElRef = useRef(null);   // actual <table> element
 
+  // Keep phantom width = table scroll width, and sync the two scrollbars
   useEffect(() => {
-    const tableContainer = tableContainerRef.current;
-    const topScroll = topScrollRef.current;
-    if (!tableContainer || !topScroll) return;
+    const container = tableContainerRef.current;
+    const topBar    = topScrollRef.current;
+    const phantom   = phantomRef.current;
+    const tableEl   = tableElRef.current;
+    if (!container || !topBar || !phantom || !tableEl) return;
 
-    const syncFromTable = () => { topScroll.scrollLeft = tableContainer.scrollLeft; };
-    const syncFromTop = () => { tableContainer.scrollLeft = topScroll.scrollLeft; };
+    // Set initial phantom width
+    const updatePhantomWidth = () => {
+      phantom.style.width = tableEl.scrollWidth + 'px';
+    };
+    updatePhantomWidth();
 
-    tableContainer.addEventListener('scroll', syncFromTable);
-    topScroll.addEventListener('scroll', syncFromTop);
+    // Keep phantom width updated when table resizes
+    const ro = new ResizeObserver(updatePhantomWidth);
+    ro.observe(tableEl);
+
+    // Sync: dragging top bar → move main container
+    let topScrolling = false;
+    let mainScrolling = false;
+    const onTopScroll = () => {
+      if (mainScrolling) return;
+      topScrolling = true;
+      container.scrollLeft = topBar.scrollLeft;
+      topScrolling = false;
+    };
+    // Sync: scrolling main container → move top bar
+    const onMainScroll = () => {
+      if (topScrolling) return;
+      mainScrolling = true;
+      topBar.scrollLeft = container.scrollLeft;
+      mainScrolling = false;
+    };
+
+    topBar.addEventListener('scroll', onTopScroll);
+    container.addEventListener('scroll', onMainScroll);
     return () => {
-      tableContainer.removeEventListener('scroll', syncFromTable);
-      topScroll.removeEventListener('scroll', syncFromTop);
+      ro.disconnect();
+      topBar.removeEventListener('scroll', onTopScroll);
+      container.removeEventListener('scroll', onMainScroll);
     };
   }, []);
 
@@ -192,20 +221,20 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      {/* Top mirror scrollbar — synced with table container below */}
+      {/* Top mirror scrollbar */}
       <div
         ref={topScrollRef}
-        className="overflow-x-auto flex-shrink-0 border-b border-slate-200"
-        style={{overflowY:'hidden', height:'12px'}}
+        className="overflow-x-auto flex-shrink-0 border-b border-slate-300 bg-slate-100"
+        style={{overflowY:'hidden', height:'14px'}}
       >
-        <div ref={tableRef} style={{height:'1px'}} />
+        <div ref={phantomRef} style={{height:'1px', minWidth:'100%'}} />
       </div>
 
       {/* flex-1 + overflow-auto: this div is the ONLY scroll container. Page never scrolls. */}
       <div ref={tableContainerRef} className="flex-1 overflow-auto min-h-0">
         <table
+          ref={tableElRef}
           className="w-full text-left text-sm border-separate border-spacing-0"
-          ref={el => { if (el && tableRef.current) tableRef.current.style.width = el.scrollWidth + 'px'; }}
         >
           <thead className="text-xs">
             <tr>
