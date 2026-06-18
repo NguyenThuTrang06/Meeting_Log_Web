@@ -46,19 +46,22 @@ const Dashboard = () => {
   const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
   const tableElRef = useRef(null);   // actual <table> element
 
-  // Single ref setup: top scrollbar drives table horizontal scroll only
-  // Table container uses overflow-x:hidden so there is NO bottom scrollbar
+  // Scroll sync: top scrollbar ↔ table container (bidirectional)
   useEffect(() => {
     const container = tableContainerRef.current;
     const topBar    = topScrollRef.current;
     if (!container || !topBar) return;
 
-    const onTopScroll = () => {
-      container.scrollLeft = topBar.scrollLeft;
-    };
+    let syncing = false;
+    const onTopScroll  = () => { if (syncing) return; syncing = true; container.scrollLeft = topBar.scrollLeft; syncing = false; };
+    const onMainScroll = () => { if (syncing) return; syncing = true; topBar.scrollLeft = container.scrollLeft; syncing = false; };
 
     topBar.addEventListener('scroll', onTopScroll);
-    return () => topBar.removeEventListener('scroll', onTopScroll);
+    container.addEventListener('scroll', onMainScroll);
+    return () => {
+      topBar.removeEventListener('scroll', onTopScroll);
+      container.removeEventListener('scroll', onMainScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -208,8 +211,9 @@ const Dashboard = () => {
         <div ref={phantomRef} style={{height:'1px'}} />
       </div>
 
-      {/* Table container: vertical scroll only — overflow-x:hidden hides bottom scrollbar */}
-      <div ref={tableContainerRef} className="flex-1 min-h-0" style={{overflowY:'auto', overflowX:'hidden'}}>
+      {/* Table container: overflow-auto keeps sticky header working;
+           hide-x-scrollbar CSS hides the bottom horizontal scrollbar */}
+      <div ref={tableContainerRef} className="flex-1 overflow-auto min-h-0 hide-x-scrollbar">
         <table
           ref={tableElRef}
           className="w-full text-left text-sm border-separate border-spacing-0"
