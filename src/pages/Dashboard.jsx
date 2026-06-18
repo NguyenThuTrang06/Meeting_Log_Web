@@ -137,8 +137,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+      <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 flex-shrink-0">
         <h1 className="text-2xl font-bold text-[#8C0000] flex items-center gap-2">
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
           Danh sách cuộc họp
@@ -146,33 +146,33 @@ const Dashboard = () => {
         <span className="text-slate-500">{filteredMeetings.length} cuộc họp</span>
       </div>
 
-      <div className="p-4 border-b border-slate-200 bg-white flex gap-4">
+      <div className="p-4 border-b border-slate-200 bg-white flex gap-4 flex-shrink-0">
         <div className="flex-1 max-w-xs relative">
           <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input 
-            type="text" 
-            placeholder="Lọc theo tuần (VD: Tuần 24)" 
+          <input
+            type="text"
+            placeholder="Lọc theo tuần (VD: Tuần 24)"
             value={searchWeek}
             onChange={(e) => { setSearchWeek(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none"
           />
         </div>
         <div className="flex-1 max-w-xs relative">
           <svg className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input 
-            type="text" 
-            placeholder="Lọc theo team" 
+          <input
+            type="text"
+            placeholder="Lọc theo team"
             value={searchTeam}
             onChange={(e) => { setSearchTeam(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none" 
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-[#8C0000] focus:border-[#8C0000] outline-none"
           />
         </div>
         <button onClick={() => setCurrentPage(1)} className="bg-[#8C0000] hover:bg-red-900 text-white px-6 py-2 rounded-lg font-medium transition-colors">Tìm kiếm</button>
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      {/* Scrollable table container — overflow:auto makes top:0 sticky relative to THIS box, not the page */}
-      <div style={{overflowX:'auto', overflowY:'auto', maxHeight:'calc(100vh - 260px)'}}>
+      {/* flex-1 + overflow-auto: this div is the ONLY scroll container. Page never scrolls. */}
+      <div className="flex-1 overflow-auto min-h-0">
         <table className="w-full text-left text-sm border-separate border-spacing-0">
           <thead className="text-xs">
             <tr>
