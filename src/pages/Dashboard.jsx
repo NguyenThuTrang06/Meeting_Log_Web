@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getMeetings, updateMeeting } from '../services/meetingService';
 import api from '../services/api';
@@ -39,6 +39,27 @@ const Dashboard = () => {
 
   // Member lists for dropdowns
   const [membersList, setMembersList] = useState([]);
+
+  // Refs for syncing top scrollbar with table
+  const tableContainerRef = useRef(null);
+  const topScrollRef = useRef(null);
+  const tableRef = useRef(null);
+
+  useEffect(() => {
+    const tableContainer = tableContainerRef.current;
+    const topScroll = topScrollRef.current;
+    if (!tableContainer || !topScroll) return;
+
+    const syncFromTable = () => { topScroll.scrollLeft = tableContainer.scrollLeft; };
+    const syncFromTop = () => { tableContainer.scrollLeft = topScroll.scrollLeft; };
+
+    tableContainer.addEventListener('scroll', syncFromTable);
+    topScroll.addEventListener('scroll', syncFromTop);
+    return () => {
+      tableContainer.removeEventListener('scroll', syncFromTable);
+      topScroll.removeEventListener('scroll', syncFromTop);
+    };
+  }, []);
 
   useEffect(() => {
     fetchMeetings();
@@ -171,9 +192,21 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
+      {/* Top mirror scrollbar — synced with table container below */}
+      <div
+        ref={topScrollRef}
+        className="overflow-x-auto flex-shrink-0 border-b border-slate-200"
+        style={{overflowY:'hidden', height:'12px'}}
+      >
+        <div ref={tableRef} style={{height:'1px'}} />
+      </div>
+
       {/* flex-1 + overflow-auto: this div is the ONLY scroll container. Page never scrolls. */}
-      <div className="flex-1 overflow-auto min-h-0">
-        <table className="w-full text-left text-sm border-separate border-spacing-0">
+      <div ref={tableContainerRef} className="flex-1 overflow-auto min-h-0">
+        <table
+          className="w-full text-left text-sm border-separate border-spacing-0"
+          ref={el => { if (el && tableRef.current) tableRef.current.style.width = el.scrollWidth + 'px'; }}
+        >
           <thead className="text-xs">
             <tr>
               <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-20 min-w-[80px]">Tuần</th>
