@@ -174,29 +174,29 @@ const Dashboard = () => {
       <div className="p-6">
         <div className="overflow-auto border border-slate-200 rounded-lg shadow-inner" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           <table className="w-full text-left text-sm border-collapse relative">
-            <thead className="text-xs sticky top-0 z-20 shadow-md">
+            <thead className="text-xs">
               <tr>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-20 min-w-[80px]">Tuần</th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-24 min-w-[100px]">Thời gian</th>
-              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32 min-w-[120px]">
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-20 min-w-[80px]">Tuần</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-24 min-w-[100px]">Thời gian</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[120px]">
                 <div className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                   Customer ID
                 </div>
               </th>
-              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32 min-w-[120px]">Project ID</th>
-              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32 min-w-[140px]">Team</th>
-              <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-40 min-w-[160px]">
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[120px]">Project ID</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[140px]">Team</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-40 min-w-[160px]">
                 <div className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                   Leader tham gia họp
                 </div>
               </th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-20 min-w-[100px] text-center">Thời lượng</th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-32 min-w-[120px]">Link video</th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 min-w-[250px]">Summary</th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-32 min-w-[120px]">Link summary</th>
-              <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-16 min-w-[80px] text-center">Chi tiết</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-20 min-w-[100px] text-center">Thời lượng</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-32 min-w-[120px]">Link video</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 min-w-[250px]">Summary</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-32 min-w-[120px]">Link summary</th>
+              <th style={{position:'sticky',top:0,zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-16 min-w-[80px] text-center">Chi tiết</th>
             </tr>
           </thead>
           <tbody className="bg-white">
