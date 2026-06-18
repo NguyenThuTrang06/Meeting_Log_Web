@@ -5,11 +5,22 @@ import api from '../services/api';
 
 const getWeekNumber = (dateString) => {
   if (!dateString) return '—';
-  const d = new Date(dateString);
+  
+  // Safely parse local time (Y-m-d H:i:s -> Y-m-dTH:i:s)
+  const d = new Date(dateString.replace(' ', 'T'));
   if (isNaN(d.getTime())) return '—';
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  
+  // Work completely in local time to avoid UTC shift (-7 hours)
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayNr = (target.getDay() + 6) % 7; // 0=Monday, 6=Sunday
+  target.setDate(target.getDate() - dayNr + 3); // Nearest Thursday
+  
+  const jan4 = new Date(target.getFullYear(), 0, 4); // ISO week 1 always contains Jan 4th
+  
+  // Use Math.round to mitigate any DST fraction discrepancies
+  const dayDiff = Math.round((target - jan4) / 86400000);
+  const weekNo = 1 + Math.ceil(dayDiff / 7);
+  
   return `Tuần ${weekNo}`;
 };
 
