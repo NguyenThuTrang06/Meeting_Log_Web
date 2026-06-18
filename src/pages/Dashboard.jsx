@@ -46,45 +46,19 @@ const Dashboard = () => {
   const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
   const tableElRef = useRef(null);   // actual <table> element
 
-  // Keep phantom width = table scroll width, and sync the two scrollbars
+  // Effect 1: Set up scroll sync between top bar and table container (once)
   useEffect(() => {
     const container = tableContainerRef.current;
     const topBar    = topScrollRef.current;
-    const phantom   = phantomRef.current;
-    const tableEl   = tableElRef.current;
-    if (!container || !topBar || !phantom || !tableEl) return;
+    if (!container || !topBar) return;
 
-    // Set initial phantom width
-    const updatePhantomWidth = () => {
-      phantom.style.width = tableEl.scrollWidth + 'px';
-    };
-    updatePhantomWidth();
-
-    // Keep phantom width updated when table resizes
-    const ro = new ResizeObserver(updatePhantomWidth);
-    ro.observe(tableEl);
-
-    // Sync: dragging top bar → move main container
-    let topScrolling = false;
-    let mainScrolling = false;
-    const onTopScroll = () => {
-      if (mainScrolling) return;
-      topScrolling = true;
-      container.scrollLeft = topBar.scrollLeft;
-      topScrolling = false;
-    };
-    // Sync: scrolling main container → move top bar
-    const onMainScroll = () => {
-      if (topScrolling) return;
-      mainScrolling = true;
-      topBar.scrollLeft = container.scrollLeft;
-      mainScrolling = false;
-    };
+    let syncing = false;
+    const onTopScroll  = () => { if (syncing) return; syncing = true; container.scrollLeft = topBar.scrollLeft; syncing = false; };
+    const onMainScroll = () => { if (syncing) return; syncing = true; topBar.scrollLeft = container.scrollLeft; syncing = false; };
 
     topBar.addEventListener('scroll', onTopScroll);
     container.addEventListener('scroll', onMainScroll);
     return () => {
-      ro.disconnect();
       topBar.removeEventListener('scroll', onTopScroll);
       container.removeEventListener('scroll', onMainScroll);
     };
@@ -163,6 +137,17 @@ const Dashboard = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Effect 2: Update top-scrollbar phantom width whenever visible data changes
+  // Uses rAF so it runs AFTER the table has painted with new rows
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (phantomRef.current && tableElRef.current) {
+        phantomRef.current.style.width = tableElRef.current.scrollWidth + 'px';
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [paginatedMeetings]);
 
   const handleClearFilters = () => {
     setSearchWeek('');
