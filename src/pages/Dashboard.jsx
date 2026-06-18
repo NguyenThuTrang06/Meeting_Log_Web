@@ -46,36 +46,19 @@ const Dashboard = () => {
   const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
   const tableElRef = useRef(null);   // actual <table> element
 
-  // Effect 1: Set up scroll sync between top bar and table container (once)
+  // Single ref setup: top scrollbar drives table horizontal scroll only
+  // Table container uses overflow-x:hidden so there is NO bottom scrollbar
   useEffect(() => {
     const container = tableContainerRef.current;
     const topBar    = topScrollRef.current;
     if (!container || !topBar) return;
 
-    let syncing = false;
-
     const onTopScroll = () => {
-      if (syncing) return;
-      syncing = true;
-      const ratio = topBar.scrollLeft / (topBar.scrollWidth - topBar.clientWidth || 1);
-      container.scrollLeft = ratio * (container.scrollWidth - container.clientWidth);
-      syncing = false;
-    };
-
-    const onMainScroll = () => {
-      if (syncing) return;
-      syncing = true;
-      const ratio = container.scrollLeft / (container.scrollWidth - container.clientWidth || 1);
-      topBar.scrollLeft = ratio * (topBar.scrollWidth - topBar.clientWidth);
-      syncing = false;
+      container.scrollLeft = topBar.scrollLeft;
     };
 
     topBar.addEventListener('scroll', onTopScroll);
-    container.addEventListener('scroll', onMainScroll);
-    return () => {
-      topBar.removeEventListener('scroll', onTopScroll);
-      container.removeEventListener('scroll', onMainScroll);
-    };
+    return () => topBar.removeEventListener('scroll', onTopScroll);
   }, []);
 
   useEffect(() => {
@@ -216,7 +199,7 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      {/* Top mirror scrollbar — 20px tall so Windows scrollbar (17px) is fully visible */}
+      {/* Top scrollbar — the ONLY horizontal scrollbar. Drives table scrollLeft via JS. */}
       <div
         ref={topScrollRef}
         className="overflow-x-auto flex-shrink-0 bg-slate-200"
@@ -225,8 +208,8 @@ const Dashboard = () => {
         <div ref={phantomRef} style={{height:'1px'}} />
       </div>
 
-      {/* flex-1 + overflow-auto: this div is the ONLY scroll container. Page never scrolls. */}
-      <div ref={tableContainerRef} className="flex-1 overflow-auto min-h-0">
+      {/* Table container: vertical scroll only — overflow-x:hidden hides bottom scrollbar */}
+      <div ref={tableContainerRef} className="flex-1 min-h-0" style={{overflowY:'auto', overflowX:'hidden'}}>
         <table
           ref={tableElRef}
           className="w-full text-left text-sm border-separate border-spacing-0"
