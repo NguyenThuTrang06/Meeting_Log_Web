@@ -171,10 +171,11 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      <div className="overflow-x-auto p-6">
-        <table className="w-full text-left text-sm border-collapse">
-          <thead className="text-xs">
-            <tr>
+      <div className="p-6">
+        <div className="overflow-auto border border-slate-200 rounded-lg shadow-inner" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <table className="w-full text-left text-sm border-collapse relative">
+            <thead className="text-xs sticky top-0 z-20 shadow-md">
+              <tr>
               <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-20 min-w-[80px]">Tuần</th>
               <th className="px-2 py-3 font-semibold bg-[#8C0000] text-white border border-slate-300 w-24 min-w-[100px]">Thời gian</th>
               <th className="px-2 py-3 font-semibold bg-[#fff500] text-black border border-slate-300 w-32 min-w-[120px]">
@@ -294,7 +295,8 @@ const Dashboard = () => {
               </tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
         
         {/* Pagination Controls */}
         {totalPages > 1 && (
