@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getMeetings, updateMeeting } from '../services/meetingService';
 import api from '../services/api';
@@ -53,8 +53,22 @@ const Dashboard = () => {
     if (!container || !topBar) return;
 
     let syncing = false;
-    const onTopScroll  = () => { if (syncing) return; syncing = true; container.scrollLeft = topBar.scrollLeft; syncing = false; };
-    const onMainScroll = () => { if (syncing) return; syncing = true; topBar.scrollLeft = container.scrollLeft; syncing = false; };
+
+    const onTopScroll = () => {
+      if (syncing) return;
+      syncing = true;
+      const ratio = topBar.scrollLeft / (topBar.scrollWidth - topBar.clientWidth || 1);
+      container.scrollLeft = ratio * (container.scrollWidth - container.clientWidth);
+      syncing = false;
+    };
+
+    const onMainScroll = () => {
+      if (syncing) return;
+      syncing = true;
+      const ratio = container.scrollLeft / (container.scrollWidth - container.clientWidth || 1);
+      topBar.scrollLeft = ratio * (topBar.scrollWidth - topBar.clientWidth);
+      syncing = false;
+    };
 
     topBar.addEventListener('scroll', onTopScroll);
     container.addEventListener('scroll', onMainScroll);
@@ -138,16 +152,12 @@ const Dashboard = () => {
     currentPage * itemsPerPage
   );
 
-  // Effect 2: Update top-scrollbar phantom width whenever visible data changes
-  // Uses rAF so it runs AFTER the table has painted with new rows
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      if (phantomRef.current && tableElRef.current) {
-        phantomRef.current.style.width = tableElRef.current.scrollWidth + 'px';
-      }
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [paginatedMeetings]);
+  // Effect 2: sync phantom width with table AFTER every render (useLayoutEffect = synchronous, after DOM, before paint)
+  useLayoutEffect(() => {
+    if (phantomRef.current && tableElRef.current) {
+      phantomRef.current.style.width = tableElRef.current.scrollWidth + 'px';
+    }
+  });
 
   const handleClearFilters = () => {
     setSearchWeek('');
@@ -206,13 +216,13 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      {/* Top mirror scrollbar */}
+      {/* Top mirror scrollbar — 20px tall so Windows scrollbar (17px) is fully visible */}
       <div
         ref={topScrollRef}
-        className="overflow-x-auto flex-shrink-0 border-b border-slate-300 bg-slate-100"
-        style={{overflowY:'hidden', height:'14px'}}
+        className="overflow-x-auto flex-shrink-0 bg-slate-200"
+        style={{overflowY:'hidden', height:'20px'}}
       >
-        <div ref={phantomRef} style={{height:'1px', minWidth:'100%'}} />
+        <div ref={phantomRef} style={{height:'1px'}} />
       </div>
 
       {/* flex-1 + overflow-auto: this div is the ONLY scroll container. Page never scrolls. */}
