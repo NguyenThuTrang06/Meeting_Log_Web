@@ -225,9 +225,13 @@ const Dashboard = () => {
                   </td>
                   
                   <td className="px-2 py-2 border border-slate-300 align-top">
-                    {meeting.video_link && (
-                      <a href={meeting.video_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs break-all line-clamp-3">
-                        {meeting.video_link}
+                    <textarea rows="3" value={meeting.video_link || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, video_link: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'video_link', e.target.value)}
+                      className="w-full h-full text-xs text-slate-600 border-none bg-transparent outline-none resize-none break-all" />
+                    {meeting.video_link && meeting.video_link.startsWith('http') && (
+                      <a href={meeting.video_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs font-medium block mt-1">
+                        Mở video &rarr;
                       </a>
                     )}
                   </td>
@@ -239,9 +243,13 @@ const Dashboard = () => {
                   </td>
 
                   <td className="px-2 py-2 border border-slate-300 align-top">
-                    {meeting.sheet_link && (
-                      <a href={meeting.sheet_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs break-all line-clamp-3">
-                        {meeting.sheet_link}
+                    <textarea rows="3" value={meeting.sheet_link || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, sheet_link: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'sheet_link', e.target.value)}
+                      className="w-full h-full text-xs text-slate-600 border-none bg-transparent outline-none resize-none break-all" />
+                    {meeting.sheet_link && meeting.sheet_link.startsWith('http') && (
+                      <a href={meeting.sheet_link} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs font-medium block mt-1">
+                        Mở summary &rarr;
                       </a>
                     )}
                   </td>
