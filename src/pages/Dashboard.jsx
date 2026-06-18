@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { getMeetings } from '../services/meetingService';
+import { getMeetings, updateMeeting } from '../services/meetingService';
+import api from '../services/api';
 
 const Dashboard = () => {
   const [meetings, setMeetings] = useState([]);
@@ -15,9 +16,35 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Member lists for dropdowns
+  const [membersList, setMembersList] = useState([]);
+
   useEffect(() => {
     fetchMeetings();
+    fetchMembers();
   }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await api.get('/members');
+      setMembersList(response.data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    }
+  };
+
+  const handleUpdateField = async (id, field, value) => {
+    try {
+      await updateMeeting(id, { [field]: value });
+    } catch (error) {
+      console.error('Update failed:', error);
+    }
+  };
+
+  const availableTeams = [...new Set([
+    'MKT', 'TECH', 'Cả team',
+    ...membersList.map(m => m.team).filter(Boolean)
+  ])].sort();
 
   const fetchMeetings = async () => {
     try {
@@ -115,14 +142,17 @@ const Dashboard = () => {
         <table className="w-full text-left text-sm">
           <thead className="bg-[#8C0000] text-white">
             <tr>
-              <th className="px-4 py-3 font-semibold rounded-tl-lg w-12 text-center">#</th>
-              <th className="px-4 py-3 font-semibold w-20">Tuần</th>
-              <th className="px-4 py-3 font-semibold w-32">Ngày họp</th>
-              <th className="px-4 py-3 font-semibold">Nội dung tóm tắt</th>
-              <th className="px-4 py-3 font-semibold w-32">Team</th>
-              <th className="px-4 py-3 font-semibold w-48">Leader</th>
-              <th className="px-4 py-3 font-semibold w-24 text-center">Thời lượng</th>
-              <th className="px-4 py-3 font-semibold rounded-tr-lg w-20 text-center">Chi tiết</th>
+              <th className="px-2 py-3 font-semibold rounded-tl-lg w-10 text-center">#</th>
+              <th className="px-2 py-3 font-semibold w-24">Tuần</th>
+              <th className="px-2 py-3 font-semibold w-24">Ngày họp</th>
+              <th className="px-2 py-3 font-semibold min-w-[160px]">Nội dung tóm tắt</th>
+              <th className="px-2 py-3 font-semibold w-24">Cust. ID</th>
+              <th className="px-2 py-3 font-semibold w-24">Proj. ID</th>
+              <th className="px-2 py-3 font-semibold w-28">Team</th>
+              <th className="px-2 py-3 font-semibold w-28">Leader</th>
+              <th className="px-2 py-3 font-semibold w-28">Member</th>
+              <th className="px-2 py-3 font-semibold w-16 text-center">Phút</th>
+              <th className="px-2 py-3 font-semibold rounded-tr-lg w-16 text-center"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -132,30 +162,73 @@ const Dashboard = () => {
               
               return (
                 <tr key={meeting.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-4 text-center text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td className="px-4 py-4 font-medium text-red-800">{meeting.week || '—'}</td>
-                  <td className="px-4 py-4 text-slate-600">{datePart}</td>
-                  <td className="px-4 py-4 text-slate-800">
+                  <td className="px-2 py-3 text-center text-slate-500 text-sm">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td className="px-2 py-3">
+                    <input type="text" value={meeting.week || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, week: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'week', e.target.value)}
+                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none text-red-800 font-medium placeholder-slate-300" placeholder="Trống" />
+                  </td>
+                  <td className="px-2 py-3 text-slate-600 text-sm whitespace-nowrap">{datePart}</td>
+                  <td className="px-2 py-3 text-slate-800 text-sm">
                     <div className="whitespace-normal line-clamp-2" title={meeting.name}>{meeting.name || meeting.short_summary || '—'}</div>
                   </td>
-                  <td className="px-4 py-4">
-                    {meeting.team ? (
-                      <span className="inline-block bg-green-100 text-green-800 px-2.5 py-0.5 rounded text-xs font-semibold">
-                        {meeting.team}
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
+                  <td className="px-2 py-3">
+                    <input type="text" value={meeting.customer_id || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, customer_id: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'customer_id', e.target.value)}
+                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none placeholder-slate-300" placeholder="ID KH" />
                   </td>
-                  <td className="px-4 py-4 text-slate-600 text-xs">
-                    {meeting.leader || '—'}
+                  <td className="px-2 py-3">
+                    <input type="text" value={meeting.project_id || ''} 
+                      onChange={e => setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, project_id: e.target.value } : m))}
+                      onBlur={e => handleUpdateField(meeting.id, 'project_id', e.target.value)}
+                      className="w-full px-2 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none placeholder-slate-300" placeholder="ID Dự án" />
                   </td>
-                  <td className="px-4 py-4 text-center">
-                    <span className="font-semibold text-blue-600">{meeting.duration_minutes || 0}</span>
-                    <span className="text-xs text-slate-500 ml-1">phút</span>
+                  <td className="px-2 py-3">
+                    <select value={meeting.team || ''} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, team: val } : m));
+                        handleUpdateField(meeting.id, 'team', val);
+                      }}
+                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
+                      <option value="">--</option>
+                      {availableTeams.map(t => <option key={t} value={t}>{t}</option>)}
+                      {!availableTeams.includes(meeting.team) && meeting.team && <option value={meeting.team}>{meeting.team}</option>}
+                    </select>
                   </td>
-                  <td className="px-4 py-4 text-center">
-                    <Link to={`/meetings/${meeting.id}`} className="inline-block bg-[#8C0000] hover:bg-red-900 text-white font-medium px-4 py-1.5 rounded-md transition-colors text-xs">
+                  <td className="px-2 py-3">
+                    <select value={meeting.leader || ''} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, leader: val } : m));
+                        handleUpdateField(meeting.id, 'leader', val);
+                      }}
+                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
+                      <option value="">--</option>
+                      {membersList.map(m => <option key={`l-${m.id}`} value={m.name}>{m.name}</option>)}
+                      {!membersList.find(m => m.name === meeting.leader) && meeting.leader && <option value={meeting.leader}>{meeting.leader}</option>}
+                    </select>
+                  </td>
+                  <td className="px-2 py-3">
+                    <select value={meeting.members || ''} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        setMeetings(prev => prev.map(m => m.id === meeting.id ? { ...m, members: val } : m));
+                        handleUpdateField(meeting.id, 'members', val);
+                      }}
+                      className="w-full px-1 py-1.5 text-sm border border-transparent hover:border-slate-300 focus:border-red-500 rounded bg-transparent focus:bg-white outline-none cursor-pointer">
+                      <option value="">--</option>
+                      {membersList.map(m => <option key={`m-${m.id}`} value={m.name}>{m.name}</option>)}
+                      {!membersList.find(m => m.name === meeting.members) && meeting.members && <option value={meeting.members}>{meeting.members}</option>}
+                    </select>
+                  </td>
+                  <td className="px-2 py-3 text-center">
+                    <span className="font-semibold text-blue-600 text-sm">{meeting.duration_minutes || 0}</span>
+                  </td>
+                  <td className="px-2 py-3 text-center">
+                    <Link to={`/meetings/${meeting.id}`} className="inline-block text-[#8C0000] hover:text-red-900 font-medium px-2 py-1 rounded transition-colors text-xs underline">
                       Xem
                     </Link>
                   </td>

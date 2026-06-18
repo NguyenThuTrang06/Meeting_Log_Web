@@ -127,9 +127,25 @@ const MeetingDetail = () => {
               <label className="block text-xs font-semibold text-slate-500 mb-1">LEADER THAM GIA</label>
               <select value={editData.leader || ''} onChange={e => setEditData({...editData, leader: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
                 <option value="">-- Chọn Leader --</option>
-                {membersList.map(m => <option key={m.id} value={m.name}>{m.name} {m.team ? `(${m.team})` : ''}</option>)}
+                {membersList.map(m => <option key={`l-${m.id}`} value={m.name}>{m.name} {m.team ? `(${m.team})` : ''}</option>)}
                 {!membersList.find(m => m.name === editData.leader) && editData.leader && <option value={editData.leader}>{editData.leader}</option>}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">MEMBER THAM GIA</label>
+              <select value={editData.members || ''} onChange={e => setEditData({...editData, members: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
+                <option value="">-- Chọn Member --</option>
+                {membersList.map(m => <option key={`m-${m.id}`} value={m.name}>{m.name}</option>)}
+                {!membersList.find(m => m.name === editData.members) && editData.members && <option value={editData.members}>{editData.members}</option>}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">CUSTOMER ID</label>
+              <input type="text" value={editData.customer_id || ''} onChange={e => setEditData({...editData, customer_id: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">PROJECT ID</label>
+              <input type="text" value={editData.project_id || ''} onChange={e => setEditData({...editData, project_id: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">TUẦN</label>
@@ -174,6 +190,10 @@ const MeetingDetail = () => {
               <div>
                 <span className="block text-xs font-semibold text-slate-500 mb-1">LEADER THAM GIA</span>
                 <span className="block text-sm text-slate-900 font-medium">{meeting.leader || '—'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-slate-500 mb-1">MEMBER THAM GIA</span>
+                <span className="block text-sm text-slate-900 font-medium">{meeting.members || '—'}</span>
               </div>
               
               <div>
