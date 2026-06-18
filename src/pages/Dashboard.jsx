@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom';
 import { getMeetings, updateMeeting } from '../services/meetingService';
 import api from '../services/api';
 
+const getWeekNumber = (dateString) => {
+  if (!dateString) return '—';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '—';
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `Tuần ${weekNo}`;
+};
+
 const Dashboard = () => {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,8 +77,11 @@ const Dashboard = () => {
 
   // Filter logic
   const filteredMeetings = useMemo(() => {
-    let result = meetings.filter(meeting => {
-      const matchWeek = searchWeek ? meeting.week?.toLowerCase().includes(searchWeek.toLowerCase()) : true;
+    let result = meetings.map(meeting => ({
+      ...meeting,
+      computedWeek: getWeekNumber(meeting.meeting_date) || meeting.week || '—'
+    })).filter(meeting => {
+      const matchWeek = searchWeek ? meeting.computedWeek.toLowerCase().includes(searchWeek.toLowerCase()) : true;
       const matchTeam = searchTeam ? meeting.team?.toLowerCase().includes(searchTeam.toLowerCase()) : true;
       return matchWeek && matchTeam;
     });
@@ -182,7 +195,7 @@ const Dashboard = () => {
               return (
                 <tr key={meeting.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-2 py-2 border border-slate-300 align-top text-red-800 font-medium text-sm">
-                    {meeting.week || '—'}
+                    {meeting.computedWeek}
                   </td>
                   <td className="px-2 py-2 border border-slate-300 align-top text-slate-700 text-sm">{datePart}</td>
                   
