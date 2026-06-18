@@ -171,31 +171,32 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-separate border-spacing-0 relative">
-            <thead className="text-xs">
-              <tr>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-20 min-w-[80px]">Tuần</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-24 min-w-[100px]">Thời gian</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[120px]">
+      {/* Scrollable table container — overflow:auto makes top:0 sticky relative to THIS box, not the page */}
+      <div style={{overflowX:'auto', overflowY:'auto', maxHeight:'calc(100vh - 260px)'}}>
+        <table className="w-full text-left text-sm border-separate border-spacing-0">
+          <thead className="text-xs">
+            <tr>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-20 min-w-[80px]">Tuần</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-24 min-w-[100px]">Thời gian</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 w-32 min-w-[120px]">
                 <div className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                   Customer ID
                 </div>
               </th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[120px]">Project ID</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-32 min-w-[140px]">Team</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border border-slate-300 w-40 min-w-[160px]">
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 w-32 min-w-[120px]">Project ID</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 w-32 min-w-[140px]">Team</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 w-40 min-w-[160px]">
                 <div className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                   Leader tham gia họp
                 </div>
               </th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-20 min-w-[100px] text-center">Thời lượng</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-32 min-w-[120px]">Link video</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 min-w-[250px]">Summary</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-32 min-w-[120px]">Link summary</th>
-              <th style={{position:'sticky',top:'64px',zIndex:30,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border border-slate-300 w-16 min-w-[80px] text-center">Chi tiết</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-20 min-w-[100px] text-center">Thời lượng</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-32 min-w-[120px]">Link video</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 min-w-[250px]">Summary</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 w-32 min-w-[120px]">Link summary</th>
+              <th style={{position:'sticky',top:0,zIndex:20,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 w-16 min-w-[80px] text-center">Chi tiết</th>
             </tr>
           </thead>
           <tbody className="bg-white">
@@ -294,39 +295,39 @@ const Dashboard = () => {
               </tr>
             )}
           </tbody>
-          </table>
-        
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center items-center gap-2">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
-            >
-              &larr; Trước
-            </button>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === page ? 'bg-[#8C0000] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === totalPages ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
-            >
-              Sau &rarr;
-            </button>
-          </div>
-        )}
+        </table>
       </div>
+
+      {/* Pagination Controls — outside the scroll container so always visible */}
+      {totalPages > 1 && (
+        <div className="p-4 flex justify-center items-center gap-2 border-t border-slate-200">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
+          >
+            &larr; Trước
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === page ? 'bg-[#8C0000] text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${currentPage === totalPages ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
+          >
+            Sau &rarr;
+          </button>
+        </div>
+      )}
     </div>
   );
 };
