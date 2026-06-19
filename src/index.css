@@ -6,18 +6,18 @@
   }
 }
 
-/* Hide ONLY the horizontal scrollbar on the table body container.
-   The vertical scrollbar stays. The top custom scrollbar handles horizontal nav. */
+/* Hide ONLY the horizontal scrollbar */
 .hide-x-scrollbar {
   scrollbar-gutter: stable;
 }
 .hide-x-scrollbar::-webkit-scrollbar {
-  height: 0 !important;
+  height: 0 !important; /* hide horizontal */
+  width: 14px; /* keep vertical */
 }
 .hide-x-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-.hide-x-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.hide-x-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }

@@ -40,50 +40,35 @@ const Dashboard = () => {
   // Member lists for dropdowns
   const [membersList, setMembersList] = useState([]);
 
-  // Refs for syncing top scrollbar with table
   const tableContainerRef = useRef(null);
   const topScrollRef = useRef(null);
-  const headerScrollRef = useRef(null);
   const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
   const tableElRef = useRef(null);   // actual <table> element
 
-  // Scroll sync: top scrollbar ↔ table container ↔ header (bidirectional)
   useEffect(() => {
     const container = tableContainerRef.current;
     const topBar    = topScrollRef.current;
-    const header    = headerScrollRef.current;
-    if (!container || !topBar || !header) return;
+    if (!container || !topBar) return;
 
     let syncing = false;
     const onTopScroll  = () => { 
       if (syncing) return; 
       syncing = true; 
       container.scrollLeft = topBar.scrollLeft; 
-      header.scrollLeft = topBar.scrollLeft;
       syncing = false; 
     };
     const onMainScroll = () => { 
       if (syncing) return; 
       syncing = true; 
       topBar.scrollLeft = container.scrollLeft; 
-      header.scrollLeft = container.scrollLeft;
       syncing = false; 
-    };
-    const onHeaderScroll = () => {
-      if (syncing) return;
-      syncing = true;
-      topBar.scrollLeft = header.scrollLeft;
-      container.scrollLeft = header.scrollLeft;
-      syncing = false;
     };
 
     topBar.addEventListener('scroll', onTopScroll);
     container.addEventListener('scroll', onMainScroll);
-    header.addEventListener('scroll', onHeaderScroll);
     return () => {
       topBar.removeEventListener('scroll', onTopScroll);
       container.removeEventListener('scroll', onMainScroll);
-      header.removeEventListener('scroll', onHeaderScroll);
     };
   }, []);
 
@@ -225,56 +210,48 @@ const Dashboard = () => {
         <button onClick={handleClearFilters} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium transition-colors">Xóa lọc</button>
       </div>
 
-      {/* MAIN SCROLLABLE TABLE AREA - with sticky header inside */}
-      <div style={{flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
+      {/* MAIN SCROLLABLE TABLE AREA */}
+      <div style={{flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column'}}>
         
-        {/* STICKY HEADER - stays at top when scrolling down */}
-        <div style={{position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'white', flexShrink: 0}}>
-
-          {/* Top scrollbar */}
+        {/* Top scrollbar (Stays at top) */}
+        <div style={{flexShrink: 0, backgroundColor: 'white', borderBottom: '1px solid #e2e8f0'}}>
           <div
             ref={topScrollRef}
             style={{overflowX:'auto', overflowY:'hidden', height:'18px', background:'#cbd5e1', cursor:'pointer'}}
           >
             <div ref={phantomRef} style={{height:'1px', width:'1440px'}} />
           </div>
-
-          {/* Header row */}
-          <div ref={headerScrollRef} style={{overflow:'hidden'}}>
-            <table style={{width:'1440px', tableLayout:'fixed', borderCollapse:'separate', borderSpacing:0}} className="text-xs">
-              <thead>
-                <tr>
-                  <th style={{width:80,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Tuần</th>
-                  <th style={{width:100,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Thời gian</th>
-                  <th style={{width:130,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                      Customer ID
-                    </div>
-                  </th>
-                  <th style={{width:120,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">Project ID</th>
-                  <th style={{width:130,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">Team</th>
-                  <th style={{width:170,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">
-                    <div className="flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                      Leader tham gia họp
-                    </div>
-                  </th>
-                  <th style={{width:110,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-center">Thời lượng</th>
-                  <th style={{width:130,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Link video</th>
-                  <th style={{width:250,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Summary</th>
-                  <th style={{width:130,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Link summary</th>
-                  <th style={{width:90,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 text-center">Chi tiết</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
         </div>
 
-        {/* TABLE BODY - scrolls horizontally and vertically */}
-        <div ref={tableContainerRef} style={{flex: 1, minHeight: 0, overflowX:'hidden', overflowY:'auto'}}>
-        <table ref={tableElRef} style={{width:'1440px', tableLayout:'fixed', borderCollapse:'separate', borderSpacing:0}} className="text-sm">
-          <tbody className="bg-white">
+        {/* TABLE BODY CONTAINER - scrolls horizontally and vertically */}
+        <div ref={tableContainerRef} className="hide-x-scrollbar" style={{flex: 1, minHeight: 0, overflowX:'auto', overflowY:'auto'}}>
+          <table ref={tableElRef} style={{width:'1440px', tableLayout:'fixed', borderCollapse:'separate', borderSpacing:0}} className="text-sm">
+            <thead style={{position: 'sticky', top: 0, zIndex: 20}}>
+              <tr>
+                <th style={{width:80,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Tuần</th>
+                <th style={{width:100,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Thời gian</th>
+                <th style={{width:130,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">
+                  <div className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    Customer ID
+                  </div>
+                </th>
+                <th style={{width:120,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">Project ID</th>
+                <th style={{width:130,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">Team</th>
+                <th style={{width:170,background:'#fff500'}} className="px-2 py-3 font-semibold text-black border-b-2 border-r border-slate-400 text-left">
+                  <div className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    Leader tham gia họp
+                  </div>
+                </th>
+                <th style={{width:110,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-center">Thời lượng</th>
+                <th style={{width:130,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Link video</th>
+                <th style={{width:250,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Summary</th>
+                <th style={{width:130,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 border-r border-slate-400 text-left">Link summary</th>
+                <th style={{width:90,background:'#8C0000'}} className="px-2 py-3 font-semibold text-white border-b-2 text-center">Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
             {paginatedMeetings.map((meeting) => {
               const datePart = meeting.meeting_date ? meeting.meeting_date.split(' ')[0] : '—';
               return (
