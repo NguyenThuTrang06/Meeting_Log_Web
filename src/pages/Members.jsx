@@ -26,10 +26,6 @@ const Members = () => {
     return uniqueTeams.sort();
   }, [members]);
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
   const fetchMembers = async () => {
     try {
       const response = await api.get('/members');
@@ -40,6 +36,10 @@ const Members = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
 
   const handleAddMember = async (e) => {
     e.preventDefault();

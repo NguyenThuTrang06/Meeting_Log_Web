@@ -10,11 +10,6 @@ const MeetingDetail = () => {
   const [membersList, setMembersList] = useState([]);
   const [editData, setEditData] = useState({});
 
-  useEffect(() => {
-    fetchMeetingDetail();
-    fetchMembers();
-  }, [id]);
-
   const fetchMembers = async () => {
     try {
       const response = await api.get('/members');
@@ -35,6 +30,11 @@ const MeetingDetail = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMeetingDetail();
+    fetchMembers();
+  }, [id]);
 
   const handleUpdateMeeting = async (e) => {
     e.preventDefault();

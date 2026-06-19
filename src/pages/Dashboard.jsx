@@ -87,11 +87,6 @@ const Dashboard = () => {
     };
   }, []);
 
-  useEffect(() => {
-    fetchMeetings();
-    fetchMembers();
-  }, []);
-
   const fetchMembers = async () => {
     try {
       const response = await api.get('/members');
@@ -132,6 +127,11 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMeetings();
+    fetchMembers();
+  }, []);
 
   // Filter logic
   const filteredMeetings = useMemo(() => {
