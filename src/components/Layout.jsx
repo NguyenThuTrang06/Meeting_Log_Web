@@ -2,8 +2,8 @@ import { Outlet, Link } from 'react-router-dom';
 
 const Layout = () => {
   return (
-    <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-      <header className="bg-[#8C0000] border-b border-red-950 shadow-md flex-shrink-0 z-50 text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <header className="bg-[#8C0000] border-b border-red-950 shadow-md sticky top-0 z-50 text-white flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center gap-10">
             <Link to="/" className="flex items-center gap-2">
@@ -25,8 +25,8 @@ const Layout = () => {
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden" style={{height:'calc(100vh - 64px)'}}>
-        <div className="h-full max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col min-h-0">
+      <main className="flex-1 flex flex-col">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
           <Outlet />
         </div>
       </main>
