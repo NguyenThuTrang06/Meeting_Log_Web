@@ -11,7 +11,13 @@
 .hide-x-scrollbar {
   scrollbar-gutter: stable;
 }
-.hide-x-scrollbar::-webkit-scrollbar:horizontal {
-  height: 0;
-  display: none;
+.hide-x-scrollbar::-webkit-scrollbar {
+  height: 0 !important;
+}
+.hide-x-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hide-x-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
