@@ -26,7 +26,7 @@ const Layout = () => {
       </header>
 
       <main className="flex-1 overflow-hidden" style={{height:'calc(100vh - 64px)'}}>
-        <div className="h-full max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
+        <div className="h-full max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col min-h-0">
           <Outlet />
         </div>
       </main>
