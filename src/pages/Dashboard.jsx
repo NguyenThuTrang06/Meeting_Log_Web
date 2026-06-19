@@ -46,35 +46,21 @@ const Dashboard = () => {
   const phantomRef = useRef(null);   // invisible wide div inside top scrollbar
   const tableElRef = useRef(null);   // actual <table> element
 
-  useEffect(() => {
-    const container = tableContainerRef.current;
-    const topBar    = topScrollRef.current;
-    const header    = headerScrollRef.current;
-    if (!container || !topBar || !header) return;
-
-    let syncing = false;
-    const onTopScroll  = () => { 
-      if (syncing) return; 
-      syncing = true; 
-      container.scrollLeft = topBar.scrollLeft; 
-      header.scrollLeft = topBar.scrollLeft;
-      syncing = false; 
-    };
-    const onMainScroll = () => { 
-      if (syncing) return; 
-      syncing = true; 
-      topBar.scrollLeft = container.scrollLeft; 
-      header.scrollLeft = container.scrollLeft;
-      syncing = false; 
-    };
-
-    topBar.addEventListener('scroll', onTopScroll);
-    container.addEventListener('scroll', onMainScroll);
-    return () => {
-      topBar.removeEventListener('scroll', onTopScroll);
-      container.removeEventListener('scroll', onMainScroll);
-    };
-  }, []);
+  const handleScroll = (source) => (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    
+    if (source !== 'top' && topScrollRef.current && topScrollRef.current.scrollLeft !== scrollLeft) {
+      topScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    if (source !== 'header' && headerScrollRef.current && headerScrollRef.current.scrollLeft !== scrollLeft) {
+      headerScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    if (source !== 'body' && tableContainerRef.current && tableContainerRef.current.scrollLeft !== scrollLeft) {
+      tableContainerRef.current.scrollLeft = scrollLeft;
+    }
+  };
 
   const fetchMembers = async () => {
     try {
@@ -223,13 +209,14 @@ const Dashboard = () => {
           {/* Top scrollbar */}
           <div
             ref={topScrollRef}
+            onScroll={handleScroll('top')}
             style={{overflowX:'auto', overflowY:'hidden', height:'18px', background:'#cbd5e1', cursor:'pointer'}}
           >
             <div ref={phantomRef} style={{height:'1px', width:'1440px'}} />
           </div>
 
           {/* Header row */}
-          <div ref={headerScrollRef} style={{overflow:'hidden'}}>
+          <div ref={headerScrollRef} onScroll={handleScroll('header')} style={{overflow:'hidden'}}>
             <table style={{width:'1440px', tableLayout:'fixed', borderCollapse:'separate', borderSpacing:0}} className="text-xs">
               <thead>
                 <tr>
@@ -261,7 +248,7 @@ const Dashboard = () => {
         </div>
 
         {/* TABLE BODY CONTAINER - grows naturally, handles horizontal scrolling */}
-        <div ref={tableContainerRef} className="hide-x-scrollbar" style={{overflowX:'auto', overflowY:'visible'}}>
+        <div ref={tableContainerRef} onScroll={handleScroll('body')} className="hide-x-scrollbar" style={{overflowX:'auto', overflowY:'visible'}}>
           <table ref={tableElRef} style={{width:'1440px', tableLayout:'fixed', borderCollapse:'separate', borderSpacing:0}} className="text-sm">
             <tbody className="bg-white">
             {paginatedMeetings.map((meeting) => {
