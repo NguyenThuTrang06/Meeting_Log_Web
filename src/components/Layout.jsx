@@ -4,7 +4,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <header className="bg-[#8C0000] border-b border-red-950 shadow-md sticky top-0 z-50 text-white flex-shrink-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center gap-10">
             <Link to="/" className="flex items-center gap-2">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm1 2h10a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1zm0 5h10a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2a1 1 0 011-1z" /></svg>
@@ -26,13 +26,13 @@ const Layout = () => {
       </header>
 
       <main className="flex-1 flex flex-col">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
           <Outlet />
         </div>
       </main>
 
       <footer className="bg-white border-t border-slate-200 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-sm text-slate-500">
             &copy; {new Date().getFullYear()} Meeting Logs Manager. Built with React & Laravel.
           </p>

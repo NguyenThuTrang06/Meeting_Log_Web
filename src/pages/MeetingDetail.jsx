@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
+import MultiSelect from '../components/MultiSelect';
 
 const MeetingDetail = () => {
   const { id } = useParams();
@@ -124,20 +125,22 @@ const MeetingDetail = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">LEADER THAM GIA</label>
-              <select value={editData.leader || ''} onChange={e => setEditData({...editData, leader: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
-                <option value="">-- Chọn Leader --</option>
-                {membersList.map(m => <option key={`l-${m.id}`} value={m.name}>{m.name} {m.team ? `(${m.team})` : ''}</option>)}
-                {!membersList.find(m => m.name === editData.leader) && editData.leader && <option value={editData.leader}>{editData.leader}</option>}
-              </select>
+              <MultiSelect
+                label="LEADER THAM GIA"
+                options={membersList.map(m => m.name)}
+                valueStr={editData.leader || ''}
+                onChange={(newVal) => setEditData({...editData, leader: newVal})}
+                placeholder="Chọn hoặc nhập tên..."
+              />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">MEMBER THAM GIA</label>
-              <select value={editData.members || ''} onChange={e => setEditData({...editData, members: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-orange-500 focus:border-orange-500 outline-none bg-white">
-                <option value="">-- Chọn Member --</option>
-                {membersList.map(m => <option key={`m-${m.id}`} value={m.name}>{m.name}</option>)}
-                {!membersList.find(m => m.name === editData.members) && editData.members && <option value={editData.members}>{editData.members}</option>}
-              </select>
+              <MultiSelect
+                label="MEMBER THAM GIA"
+                options={membersList.map(m => m.name)}
+                valueStr={editData.members || ''}
+                onChange={(newVal) => setEditData({...editData, members: newVal})}
+                placeholder="Chọn hoặc nhập tên..."
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">CUSTOMER ID</label>
